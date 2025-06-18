@@ -1,4 +1,0 @@
-# Ignorer les autres modèles
-model_lgb.pkl
-model_rf.pkl
-model_xgb.pkl
