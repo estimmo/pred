@@ -122,13 +122,27 @@ def load_geo_data():
 @st.cache_resource
 def load_model_and_encoders(model_choice):
     """Load model and encoders with enhanced error handling"""
-    # Updated model path mapping to match your actual filenames
+    
+    # CORRECTION: Essayer les deux noms de fichiers possibles pour CatBoost
     if model_choice == "cb":
-        model_path = 'model_cb_b.pkl'  # Changed from 'model_cb.pkl'
+        # Essayer d'abord model_cb_b.pkl, puis model_cb.pkl
+        possible_paths = ['model_cb_b.pkl', 'model_cb.pkl']
+        model_path = None
+        
+        for path in possible_paths:
+            if os.path.exists(path):
+                model_path = path
+                st.info(f"📁 Fichier CatBoost trouvé: {path}")
+                break
+        
+        if model_path is None:
+            st.error(f"❌ Aucun fichier CatBoost trouvé. Fichiers recherchés: {possible_paths}")
+            return None, None, {}
+            
     elif model_choice == "lgb":
-        model_path = 'model_lgb.pkl'   # This remains the same
+        model_path = 'model_lgb.pkl'
     else:
-        model_path = f'model_{model_choice}.pkl'  # Fallback
+        model_path = f'model_{model_choice}.pkl'
     
     encoders_path = 'encoders.pkl'
     
@@ -141,7 +155,7 @@ def load_model_and_encoders(model_choice):
         if os.path.exists(model_path):
             # First, let's diagnose the file
             file_size = os.path.getsize(model_path)
-            st.info(f"📁 Fichier trouvé: {model_path} ({file_size} bytes)")
+            st.info(f"📁 Fichier utilisé: {model_path} ({file_size} bytes)")
             
             # Check if file is empty or too small
             if file_size < 10:
@@ -292,6 +306,7 @@ def load_model_and_encoders(model_choice):
         st.info("Utilisation de l'encodage par défaut")
     
     return model, encoders, model_info
+
 
 def encode_categorical_features(input_data, encoders=None):
     """Encode categorical features with EXACT Jupyter consistency"""
